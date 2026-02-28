@@ -8,7 +8,6 @@ def xor_mekanizmasi(kaynak_veri, anahtar_kelime):
     anahtar_bayt = anahtar_kelime.encode('utf-8')
     n = len(anahtar_bayt)
     
-    # Mühendislik Notu: Enumerate kullanımı performansı artırır.
     # Her baytı sırasıyla anahtarın ilgili baytı ile XOR'luyoruz.
     islenmis_liste = bytearray()
     for sira, bayt in enumerate(kaynak_veri):
@@ -40,7 +39,8 @@ def proje_calistir(giris_dosyasi, cikis_dosyasi, sifre):
     except Exception as hata:
         print(f"Beklenmeyen bir hata: {hata}")
 
-# --- AYARLAR (Burayı kendine göre değiştirebilirsin) ---
+
 if __name__ == "__main__":
-    GIZLI_ANAHTAR = "Bakircay_2026_Cipher" # Senin özel şifren
+    GIZLI_ANAHTAR = "Bakircay_2026_Cipher" 
+
     proje_calistir("mesaj.txt", "sifreli.bin", GIZLI_ANAHTAR)
