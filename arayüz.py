@@ -4,6 +4,9 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox#bunu asıl algoritmları entegre etmediğimiz için örnek messagebox ekledim o algoritmlar yerine.
 
+from aes_sifreleme import AnaMotor
+from xor_sifreleme import islemi_baslat
+
 secilenDosya_adresi=""#bu ortak kullanağımız cep gibi birşey.
 # eğer bunu yapmazsak sifreleme olusturdugumuzda acaba dosya secildi mi seçilmedi mi bilemez.
 
@@ -39,48 +42,63 @@ def dosyaSec():
        dosyaBilgi.config(text="Dosya secilmedi")
 
 
-def bosSifreleme():#bu isimleri kendim simdilik verdim.
-   algoritma=secilenAlgoritma.get()
+def bosSifreleme():
+    algoritma = secilenAlgoritma.get()
+    girilenSifre = sifreGirme.get()
 
-   girilenSifre=sifreGirme.get()
+    if secilenDosya_adresi == "": 
+        messagebox.showwarning("Hata!", "Önce şifrelenecek dosyayı seçiniz.")
+        return
 
+    if algoritma == "AES":
+        # AES için .key dosyası üretilir
+        motor = AnaMotor()
+        key_yolu = secilenDosya_adresi + ".key"
+        cikti_yolu = secilenDosya_adresi + ".enc"
+        
+        motor.key_olusturucu(key_yolu)
+        motor.dosya_sifrele(secilenDosya_adresi, cikti_yolu)
+        messagebox.showinfo("Başarılı", f"AES şifreleme gerçekleştirildi.\nAnahtar: {key_yolu}")
 
-   if secilenDosya_adresi=="": 
-       
-    messagebox.showwarning("Hata!", " Önce sifrelenecek dosyayi seciniz. ")  
+    elif algoritma == "XOR":
+        if girilenSifre == "":
+            messagebox.showwarning("Uyarı", "XOR için lütfen bir şifre giriniz.")
+            return
+        
+        cikti_yolu = secilenDosya_adresi + ".xor"
+        # xor_sifreleme.py içindeki fonksiyonu çağırıyoruz
+        islemi_baslat(secilenDosya_adresi, cikti_yolu, girilenSifre)
+        messagebox.showinfo("Başarılı", "XOR şifreleme gerçekleştirildi.")
 
-   elif girilenSifre=="":
-      messagebox.showwarning("Uyari","Sifrelemediniz")
-
-   else :
-
-      if algoritma=="AES":
-         # buraya AES kodu gelebilir.
-         messagebox.showwarning("Tebrikler!","Sifre AES olusturuldu. ")
       
-      
-      
+def bosSifrecozme():
+    algoritma = secilenAlgoritma.get()
+    girilenSifre = sifreGirme.get()
 
-      elif algoritma=="XOR":
-         #   buraya XOR kodu gelecek.
-         messagebox.showwarning("Tebrikler","Sifre XOR ile olusturuldu.")
+    if secilenDosya_adresi == "":
+        messagebox.showwarning("Hata!", "Önce çözülecek dosyayı seçiniz.")
+        return
 
-      
+    if algoritma == "AES":
+        # AES çözmek için .key dosyasını seçmemiz gerekir
+        key_dosyasi = filedialog.askopenfilename(title="Lütfen .key dosyasını seçin")
+        if not key_dosyasi:
+            return
+        
+        motor = AnaMotor()
+        motor.key_yukle(key_dosyasi)
+        cikti_yolu = secilenDosya_adresi.replace(".enc", "_cozulmus.txt")
+        motor.dosya_sifrelemeyi_ac(secilenDosya_adresi, cikti_yolu)
+        messagebox.showinfo("Başarılı", "AES deşifre edildi!")
 
-
-
-
-
-
-def bosSifrecozme():#bu isimleri kendim simdilik verdim.
-
-   girilenSifre=sifreGirme.get()#tek bir entry var girilen sifreyi kaydediyoruz.
-
-   if girilenSifre:#Eğer sifre girildiyse cozulecek demek bu satır.
-      messagebox.showwarning("Tebrikler","Sifre cozuldu.")
-
-   else :
-      messagebox.showwarning("Uyari!","Sifre girmediniz .")
+    elif algoritma == "XOR":
+        if girilenSifre == "":
+            messagebox.showwarning("Uyarı!", "XOR için şifre girmediniz.")
+            return
+        
+        cikti_yolu = secilenDosya_adresi.replace(".xor", "_cozulmus.txt")
+        islemi_baslat(secilenDosya_adresi, cikti_yolu, girilenSifre)
+        messagebox.showinfo("Başarılı", "XOR Çözme işlemi tamamlandı!")
    
    
 
@@ -134,6 +152,7 @@ sifreOlustur.pack(pady=5)
 
 sifreCoz=tk.Button(cerceveSifreleme,text="Sifreyi coz.",command=bosSifrecozme, font=("Arial", 11, "bold"),bg="#c0392b", fg="white", padx=28, pady=5, cursor="hand2")
 sifreCoz.pack(pady=5)
+
 
 
 
